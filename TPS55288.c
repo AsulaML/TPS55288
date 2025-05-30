@@ -40,15 +40,13 @@ void TPS55288_Init(uint8_t SlaveAdr)
     TPS55288_W_REG(SlaveAdr, REG_IOUT_LIMIT, BuckBoost.I_OUT_LIMIT);
     BuckBoost.I_OUT_LIMIT = TPS55288_R_REG(SlaveAdr, REG_IOUT_LIMIT);
     
+    // Activation de la sortie
     TPS55288_W_REG(SlaveAdr, REG_MODE, TPS_OE_ON);
     BuckBoost.MODE = TPS55288_R_REG(SlaveAdr, REG_MODE);
     
+    // Configuration feedback et slew rate
     TPS55288_W_REG(SlaveAdr, REG_VOUT_FS, TPS_FBR_2);
-    
-    
-    //Slew rate max
     TPS55288_W_REG(SlaveAdr, REG_VOUT_SR, 3);
-    
     
     // set bot OCP_MASK
     TPS55288_W_REG(SlaveAdr, REG_CDC, BuckBoost.CDC |0x40);
@@ -56,7 +54,7 @@ void TPS55288_Init(uint8_t SlaveAdr)
 
 /**
  * \fn void TPS55288_Write_VREF(uint8_t SlaveAdr, uint16_t vref)
- * \brief fonction qui permet d'écrire dans la consigne de tension
+ * \brief fonction qui permet d'ï¿½crire dans la consigne de tension
  * \return 0
  */
 void TPS55288_Write_VREF(uint8_t SlaveAdr, uint16_t vref)
@@ -75,39 +73,10 @@ void TPS55288_Write_VREF(uint8_t SlaveAdr, uint16_t vref)
     BuckBoost.VREF |= (uint16_t)(TPS55288_R_REG(SlaveAdr, REG_REF_MSB)<<8);
 }
 
-/*
-void TPS55288_Enable_Output()
-{
-    // Refresh internals registers
-    TPS55288_Read_ALL_REG(ADDR_TPS);
-    
-    // Si Output Enable ON
-    if((BuckBoost.MODE & 0x80) == 0)
-    {
-        // Pas d'output enable tant que une limite de courant est persistante
-        if(BuckBoost.OCP)
-        {
-            TPS55288_Init(ADDR_TPS);
-            TPS55288_SetVout(ADDR_TPS, ComputeVoutForThisMode(NORTEC,0.5)); 
-        }
-        // Pas de limite de courant atteint
-        else
-        {
-            TPS55288_Init(ADDR_TPS);
-        }
-    }
-    // Si Output Enable OFF
-    else
-    {
-        TPS55288_SetVout(ADDR_TPS, ComputeVoutForThisMode(NORTEC,1.0)); 
-    }
-}
-*/
-
 /**
  * \fn void TPS55288_Read_STATUS(uint8_t SlaveAdr)
  * \brief fonction qui permet de lire le registre de status
- * le résultat est stocké dans la structure
+ * le rï¿½sultat est stockï¿½ dans la structure
  * \return 0
  */
 void TPS55288_Read_STATUS(uint8_t SlaveAdr)
@@ -118,7 +87,7 @@ void TPS55288_Read_STATUS(uint8_t SlaveAdr)
 /**
  * \fn void TPS55288_Read_ALL_REG(uint8_t SlaveAdr)
  * \brief fonction qui permet de lire l'ensemble des registres du composant
- * le résultat est stocké dans la structure
+ * le rï¿½sultat est stockï¿½ dans la structure
  * \return 0
  */
 void TPS55288_Read_ALL_REG(uint8_t SlaveAdr)
@@ -132,17 +101,14 @@ void TPS55288_Read_ALL_REG(uint8_t SlaveAdr)
     BuckBoost.MODE = TPS55288_R_REG(SlaveAdr, REG_MODE);
     BuckBoost.STATUS = TPS55288_R_REG(SlaveAdr, REG_STATUS);
     
-    BuckBoost.OCP = BuckBoost.STATUS>>6;
-    BuckBoost.OCP &= 0x01;
-    
-    BuckBoost.SCP = BuckBoost.STATUS>>7;
-    
-    BuckBoost.OE = BuckBoost.MODE>>7;
+    BuckBoost.OCP = (BuckBoost.STATUS >> 6) & 0x01;
+    BuckBoost.SCP = (BuckBoost.STATUS >> 7) & 0x01;
+    BuckBoost.OE = (BuckBoost.MODE >> 7) & 0x01;
 }
 
 /**
  * \fn void TPS55288_W_REG(uint8_t SlaveAdr, uint8_t RegAdr, uint8_t RegVal)
- * \brief fonction qui permet d'écrire les registres du composant
+ * \brief fonction qui permet d'ï¿½crire les registres du composant
  * \return uint8_t
  */
 void TPS55288_W_REG(uint8_t SlaveAdr, uint8_t RegAdr, uint8_t RegVal)
